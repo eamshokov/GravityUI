@@ -1,7 +1,5 @@
 package core
 
-import kotlin.math.*
-
 val G = 0.000000000667
 
 class PhObject(
@@ -11,26 +9,23 @@ class PhObject(
     var position:Vector = Vector(),
     var mass:Double = 0.0
 ){
-    /*fun applyForce(force:Vector){
-        this.forces.add(force)
-    }*/
 
     fun calcA(time:Long=1){
         a = (force/mass)*time.toDouble()//forces.reduce{v1,v2->v1+v2}/mass
     }
 
-    fun tick(time:Long){
+    fun calculateVelocity(time:Long){
         calcA(time)
         v.plusAssign(a)
         position.plusAssign(v)
     }
 }
-fun direction(a: Vector, b: Vector):Vector{
-    val v = a-b
-    val len = sqrt(abs(v.x.pow(2)+v.y.pow(2)))
-    return Vector(v.x/len, v.y/len)
-}
-
-fun distance(a:Vector, b:Vector):Double{
-    return sqrt(abs((a.x-b.x).pow(2)+(a.y-b.y).pow(2)))
+fun applyGravityForTwoObjects(a:PhObject, b:PhObject, it:Long){
+    if(a.position.x != b.position.x || a.position.y != b.position.y){
+        val gravityForce = ((a.mass * b.mass) / distance(a.position, b.position)) * G
+        a.force = direction(b.position, a.position) * gravityForce
+        b.force = direction(a.position, b.position) * gravityForce
+    }
+    a.calculateVelocity(it)
+    b.calculateVelocity(it)
 }
